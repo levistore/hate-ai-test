@@ -1,0 +1,1636 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Hate AI - Premium AI Experience</title>
+    
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        primary: '#A3E635', // Aura Lime
+                        surface: '#333333', // Neuform Surface Charcoal
+                        textDark: '#111827',
+                        textMuted: '#4B5563',
+                    },
+                    borderRadius: {
+                        'card': '40px',
+                        'control': '40px',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- FontAwesome Icons & HighlightJS GitHub Dark Theme -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github-dark.min.css">
+    
+    <!-- Core Engine CDNs -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dompurify/3.0.6/purify.min.js"></script>
+
+    <style>
+        body {
+            background-color: #FFFFFF;
+            background-image: radial-gradient(#e5e7eb 1.5px, transparent 1.5px);
+            background-size: 24px 24px;
+        }
+
+        /* Safe-areas helper untuk smartphone modern */
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .pt-safe {
+            padding-top: env(safe-area-inset-top);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(51, 51, 51, 0.15);
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(51, 51, 51, 0.3);
+        }
+
+        /* Animasi kursor ketikan AI realtime */
+        .streaming-cursor::after {
+            content: '▊';
+            display: inline-block;
+            margin-left: 3px;
+            color: #A3E635;
+            animation: blink 0.8s steps(2, start) infinite;
+        }
+        @keyframes blink {
+            to { visibility: hidden; }
+        }
+
+        /* Pengaturan Rendering Markdown */
+        .prose table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin: 1rem 0;
+            font-size: 0.825rem;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.12);
+        }
+        .prose th, .prose td {
+            padding: 0.75rem 1rem;
+            text-align: left;
+        }
+        .prose th {
+            background-color: rgba(255, 255, 255, 0.08);
+            font-weight: 600;
+        }
+        .prose td {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .prose blockquote {
+            border-left: 4px solid #A3E635;
+            padding-left: 1.25rem;
+            color: #94a3b8;
+            font-style: italic;
+            margin: 1.5rem 0;
+        }
+        .prose pre {
+            margin: 0 !important;
+            background: transparent !important;
+        }
+    </style>
+</head>
+<body class="text-textDark h-screen w-screen overflow-hidden flex font-sans antialiased">
+
+    <!-- OVERLAY SIDEBAR SELULER -->
+    <div id="mobile-overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-30 hidden transition-opacity duration-300 md:hidden" onclick="toggleMobileSidebar()"></div>
+
+    <!-- SIDEBAR KIRI -->
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-40 w-80 flex flex-col transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 p-4 shrink-0">
+        <div class="h-full w-full bg-surface text-white rounded-[40px] flex flex-col p-6 shadow-xl border border-neutral-800/20">
+            
+            <!-- Identitas Logo -->
+            <div class="flex items-center justify-between pb-6 border-b border-white/5">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-[14px] bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+                        <i class="fa-solid fa-face-angry text-surface text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-md tracking-tight text-white leading-none">Hate AI</h1>
+                        <span class="text-[10px] text-primary font-mono tracking-widest uppercase">Aura Engine</span>
+                    </div>
+                </div>
+                <button onclick="toggleSettingsModal()" class="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center transition-all text-white" title="Pengaturan AI">
+                    <i class="fa-solid fa-sliders text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Kontrol Sesi -->
+            <div class="py-4 flex gap-2">
+                <button onclick="createNewSession()" class="flex-1 h-11 rounded-full bg-primary hover:bg-primary/90 text-surface font-bold text-xs flex items-center justify-center space-x-2 transition-all active:scale-[0.98]">
+                    <i class="fa-solid fa-plus text-xs"></i>
+                    <span>Sesi Baru</span>
+                </button>
+                <button onclick="triggerImport()" class="w-11 h-11 rounded-full bg-white/5 hover:bg-white/10 text-white flex items-center justify-center transition-all" title="Import Sesi">
+                    <i class="fa-solid fa-file-import text-xs"></i>
+                </button>
+            </div>
+
+            <!-- Panel Pencarian Sesi -->
+            <div class="pb-3">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-neutral-400">
+                        <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                    </span>
+                    <input type="text" id="search-chat" oninput="handleSearch(this.value)" placeholder="Cari percakapan..." class="w-full h-10 pl-10 pr-4 rounded-full text-xs bg-white/5 border border-white/10 text-white placeholder-neutral-500 focus:outline-none focus:border-primary/40 focus:bg-white/10 transition-all">
+                </div>
+            </div>
+
+            <!-- Navigasi Daftar Sesi -->
+            <div id="session-list" class="flex-1 overflow-y-auto space-y-1.5 py-2 -mx-2 px-2">
+                <!-- Diisi dinamis oleh JavaScript -->
+            </div>
+
+            <!-- Widget Status Konektivitas -->
+            <div class="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/10 text-[10px] font-mono text-primary font-bold">
+                        A1
+                    </div>
+                    <div>
+                        <p class="text-[11px] font-bold text-white">Status Vitalitas</p>
+                        <p id="system-status-indicator" class="text-[9px] text-primary flex items-center gap-1.5 font-mono">
+                            <span class="w-2 h-2 rounded-full bg-primary animate-ping"></span> Secure Server Link
+                        </p>
+                    </div>
+                </div>
+                <button onclick="clearAllHistory()" class="w-8 h-8 rounded-full bg-white/5 hover:bg-rose-500/10 hover:text-rose-400 text-neutral-400 flex items-center justify-center transition-all" title="Bersihkan Semua">
+                    <i class="fa-solid fa-trash-can text-xs"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- AREA CHAT UTAMA -->
+    <main class="flex-1 flex flex-col h-full overflow-hidden p-4 md:pl-0">
+        <div class="h-full w-full bg-white rounded-[40px] shadow-sm border border-neutral-200/50 flex flex-col overflow-hidden relative">
+            
+            <!-- Dashboard Header -->
+            <header class="h-20 border-b border-neutral-100 flex items-center justify-between px-6 z-10 bg-white/85 backdrop-blur-md">
+                <div class="flex items-center space-x-3">
+                    <button onclick="toggleMobileSidebar()" class="md:hidden w-10 h-10 rounded-full bg-neutral-100 hover:bg-neutral-200 flex items-center justify-center transition-colors text-textDark">
+                        <i class="fa-solid fa-bars text-sm"></i>
+                    </button>
+                    <div>
+                        <h2 id="current-chat-title" class="font-bold text-sm md:text-base text-textDark tracking-tight max-w-[160px] md:max-w-xs truncate">Memuat Sesi...</h2>
+                        <div class="flex items-center space-x-2 mt-0.5">
+                            <span id="active-model-badge" class="text-[10px] bg-neutral-100 text-textMuted px-2 py-0.5 rounded-full font-mono border border-neutral-200/50">wormv5.1</span>
+                            <span class="w-1.5 h-1.5 rounded-full bg-primary"></span>
+                            <span class="text-[10px] text-textMuted font-mono font-medium">Secure Proxy</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Kontrol Header -->
+                <div class="flex items-center space-x-1.5">
+                    <!-- Tombol Toggle Panel Debug -->
+                    <button onclick="toggleDebugPanel()" class="w-9 h-9 rounded-full bg-neutral-100 hover:bg-neutral-200 text-textMuted hover:text-textDark flex items-center justify-center transition-all" title="Toggle Panel Debug">
+                        <i class="fa-solid fa-terminal text-xs"></i>
+                    </button>
+                    <button onclick="triggerExport('txt')" class="h-9 px-3 rounded-full hover:bg-neutral-100 text-[11px] font-bold text-textMuted hover:text-textDark flex items-center space-x-1.5 transition-all">
+                        <i class="fa-solid fa-file-lines"></i>
+                        <span class="hidden sm:inline">TXT</span>
+                    </button>
+                    <button onclick="triggerExport('json')" class="h-9 px-3 rounded-full hover:bg-neutral-100 text-[11px] font-bold text-textMuted hover:text-textDark flex items-center space-x-1.5 transition-all">
+                        <i class="fa-solid fa-code"></i>
+                        <span class="hidden sm:inline">JSON</span>
+                    </button>
+                    <div class="h-4 w-px bg-neutral-200 mx-1"></div>
+                    <button onclick="clearCurrentChat()" class="w-9 h-9 rounded-full hover:bg-rose-50 hover:text-rose-600 text-textMuted flex items-center justify-center transition-all" title="Reset Percakapan">
+                        <i class="fa-solid fa-broom text-xs"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Workspace Obrolan & Panel Debug -->
+            <div class="flex-1 flex overflow-hidden relative">
+                
+                <!-- Scroller Obrolan -->
+                <div id="chat-scroller" class="flex-1 overflow-y-auto px-6 py-8 space-y-6 relative" onscroll="handleScrollDetection()">
+                    
+                    <!-- Welcome Dashboard Screen -->
+                    <div id="welcome-screen" class="max-w-xl mx-auto my-auto py-12 flex flex-col items-center justify-center text-center space-y-8 hidden">
+                        <div class="w-16 h-16 rounded-[22px] bg-primary flex items-center justify-center shadow-xl shadow-primary/25">
+                            <i class="fa-solid fa-face-angry text-surface text-2xl animate-bounce"></i>
+                        </div>
+                        
+                        <div class="space-y-2">
+                            <h3 class="text-3xl font-extrabold tracking-tight text-textDark">Vitality Dashboard</h3>
+                            <p class="text-sm text-textMuted max-w-md mx-auto leading-relaxed">
+                                Evaluasi efisiensi arsitektur kode Anda dengan ejekan sarkastik premium. Stabil, sehat, dan aman melompati batasan CORS browser secara otomatis.
+                            </p>
+                        </div>
+
+                        <!-- Metrics Bento Cards -->
+                        <div class="grid grid-cols-2 gap-4 w-full max-w-md">
+                            <div class="bg-neutral-50 border border-neutral-100 p-4 rounded-[24px] text-left shadow-sm">
+                                <p class="text-[10px] text-textMuted uppercase font-mono tracking-wider font-semibold">Longevity Score</p>
+                                <p class="text-2xl font-bold text-textDark mt-1">98.2%</p>
+                                <p class="text-[10px] text-primary font-bold mt-0.5">0.7x slower aging</p>
+                            </div>
+                            <div class="bg-neutral-50 border border-neutral-100 p-4 rounded-[24px] text-left shadow-sm">
+                                <p class="text-[10px] text-textMuted uppercase font-mono tracking-wider font-semibold">Sync Mode</p>
+                                <p class="text-2xl font-bold text-textDark mt-1">Vercel Proxy</p>
+                                <p class="text-[10px] text-primary font-bold mt-0.5">Stream Tunnel Active</p>
+                            </div>
+                        </div>
+
+                        <!-- Quick Prompts Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 w-full max-w-lg">
+                            <button onclick="useQuickPrompt('Mengapa Javascript adalah lelucon terbesar dunia teknologi?')" class="p-5 rounded-[24px] bg-neutral-50 hover:bg-neutral-100 border border-neutral-200/50 text-left transition-all duration-200 group shadow-sm">
+                                <p class="text-xs font-bold text-textDark group-hover:text-primary transition-colors mb-1">Mengejek JS</p>
+                                <p class="text-[11px] text-textMuted line-clamp-1">"Mengapa Javascript adalah lelucon terbesar..."</p>
+                            </button>
+                            <button onclick="useQuickPrompt('Analisa secara sarkas mengapa kode saya selalu memiliki bug.')" class="p-5 rounded-[24px] bg-neutral-50 hover:bg-neutral-100 border border-neutral-200/50 text-left transition-all duration-200 group shadow-sm">
+                                <p class="text-xs font-bold text-textDark group-hover:text-primary transition-colors mb-1">Analisis Bug</p>
+                                <p class="text-[11px] text-textMuted line-clamp-1">"Analisa secara sarkas mengapa kode saya..."</p>
+                            </button>
+                            <button onclick="useQuickPrompt('Berikan analogi konyol tentang kegagalan setup database.')" class="p-5 rounded-[24px] bg-neutral-50 hover:bg-neutral-100 border border-neutral-200/50 text-left transition-all duration-200 group shadow-sm">
+                                <p class="text-xs font-bold text-textDark group-hover:text-primary transition-colors mb-1">Kegagalan DB</p>
+                                <p class="text-[11px] text-textMuted line-clamp-1">"Berikan analogi konyol tentang kegagalan..."</p>
+                            </button>
+                            <button onclick="useQuickPrompt('Bandingkan programmer PHP vs Node.js dengan sindiran keras.')" class="p-5 rounded-[24px] bg-neutral-50 hover:bg-neutral-100 border border-neutral-200/50 text-left transition-all duration-200 group shadow-sm">
+                                <p class="text-xs font-bold text-textDark group-hover:text-primary transition-colors mb-1">Perang Bahasa</p>
+                                <p class="text-[11px] text-textMuted line-clamp-1">"Bandingkan programmer PHP vs Node.js..."</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Tempat List Gelembung Obrolan -->
+                    <div id="messages-container" class="max-w-3xl mx-auto space-y-6">
+                        <!-- Diisi dinamis oleh JavaScript -->
+                    </div>
+
+                    <!-- Indikator Mengetik AI -->
+                    <div id="typing-indicator" class="max-w-3xl mx-auto flex items-start space-x-4 hidden">
+                        <div class="w-9 h-9 rounded-[14px] bg-surface flex items-center justify-center text-primary shrink-0 shadow-md">
+                            <i class="fa-solid fa-face-angry animate-bounce"></i>
+                        </div>
+                        <div class="flex-1 space-y-2 mt-1">
+                            <div class="h-3 bg-neutral-100 rounded-full w-1/4 animate-pulse"></div>
+                            <div class="space-y-1.5">
+                                <div class="h-2.5 bg-neutral-100 rounded-full animate-pulse"></div>
+                                <div class="h-2.5 bg-neutral-100 rounded-full w-5/6 animate-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- PANEL DEBUG (SIDE-DOCK KANAN) -->
+                <div id="debug-panel" class="w-80 border-l border-neutral-200 bg-neutral-50 flex flex-col hidden animate-in slide-in-from-right duration-200">
+                    <div class="p-4 border-b border-neutral-200 bg-neutral-100 flex items-center justify-between">
+                        <h4 class="font-bold text-xs text-textDark flex items-center gap-2 font-mono">
+                            <i class="fa-solid fa-bug text-primary"></i> Live Engine Monitor
+                        </h4>
+                        <button onclick="toggleDebugPanel()" class="w-6 h-6 rounded-full hover:bg-neutral-200 flex items-center justify-center text-textMuted hover:text-textDark">
+                            <i class="fa-solid fa-xmark text-xs"></i>
+                        </button>
+                    </div>
+                    
+                    <!-- Detail Metrik Debug -->
+                    <div class="p-4 space-y-3.5 border-b border-neutral-200">
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="font-mono text-textMuted">Koneksi Aktif:</span>
+                            <span class="font-mono font-bold text-textDark bg-neutral-200 px-2 py-0.5 rounded-full">/api/chat</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="font-mono text-textMuted">Response Status:</span>
+                            <span id="debug-last-status" class="font-mono font-bold text-textDark">-</span>
+                        </div>
+                        <div class="flex justify-between items-center text-[11px]">
+                            <span class="font-mono text-textMuted">Durasi Request:</span>
+                            <span id="debug-duration" class="font-mono font-bold text-textDark">0 ms</span>
+                        </div>
+                        <div class="text-[10px] space-y-1">
+                            <span class="font-mono font-bold text-textMuted block">Target URL:</span>
+                            <span id="debug-target-url" class="font-mono break-all bg-neutral-200/50 p-1.5 rounded block text-textDark text-[10px]">None</span>
+                        </div>
+                    </div>
+
+                    <!-- Log Console Monitor -->
+                    <div class="flex-1 flex flex-col min-h-0 bg-surface text-neutral-300">
+                        <div class="px-4 py-2 border-b border-white/5 bg-neutral-900 flex items-center justify-between">
+                            <span class="text-[9px] font-bold font-mono text-neutral-400">LOG CONSOLE</span>
+                            <button onclick="clearDebugLogs()" class="text-[9px] font-mono text-primary hover:underline">Hapus</button>
+                        </div>
+                        <div id="debug-log-console" class="flex-1 p-3 font-mono text-[10px] overflow-y-auto space-y-1 selection:bg-primary/30">
+                            <!-- Diisi dinamis oleh AppLogger -->
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Panel Area Input (Composer) -->
+            <div class="p-4 md:p-6 border-t border-neutral-100 bg-white/85 backdrop-blur-md z-10 pb-safe">
+                <div class="max-w-3xl mx-auto relative">
+                    
+                    <!-- Tombol Stop Generation -->
+                    <div id="stop-generation-container" class="absolute -top-12 left-1/2 -translate-x-1/2 hidden">
+                        <button onclick="stopGeneration()" class="h-9 px-4 rounded-full bg-surface text-primary hover:bg-neutral-800 text-xs font-bold flex items-center space-x-2 transition-all active:scale-95 shadow-lg border border-neutral-800/10">
+                            <i class="fa-solid fa-circle-stop animate-pulse"></i>
+                            <span>Berhenti Menghasilkan</span>
+                        </button>
+                    </div>
+
+                    <!-- Formulir Input -->
+                    <div class="bg-neutral-50 rounded-[32px] border border-neutral-200/70 p-2.5 shadow-sm hover:border-neutral-300 transition-all focus-within:border-primary/50 focus-within:bg-neutral-50/50">
+                        <div class="flex items-end space-x-2">
+                            <textarea id="chat-input" rows="1" oninput="autoResizeTextarea(this)" placeholder="Masukkan keluhan kode atau pertanyaan bodohmu di sini..." class="flex-1 bg-transparent border-0 focus:ring-0 focus:outline-none text-textDark placeholder-neutral-400 text-sm py-2.5 px-4 resize-none max-h-40 min-h-[42px] leading-relaxed"></textarea>
+                            
+                            <div class="flex items-center space-x-2 pr-1.5 pb-1.5">
+                                <span id="char-counter" class="text-[10px] text-textMuted mr-1 font-mono hidden sm:inline">0/2000</span>
+                                <button id="send-btn" onclick="handleSend()" class="w-10 h-10 rounded-full bg-surface hover:bg-neutral-800 text-primary flex items-center justify-center transition-all active:scale-[0.93] shadow-md" title="Kirim">
+                                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- TOASTS NOTIFICATIONS -->
+    <div id="toast-container" class="fixed top-6 right-6 z-50 flex flex-col space-y-2 pointer-events-none"></div>
+
+    <!-- MODAL IMPORT SESI -->
+    <div id="import-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
+        <div class="bg-white w-full max-w-md rounded-[40px] overflow-hidden shadow-2xl border border-neutral-200/50">
+            <div class="p-6 border-b border-neutral-100 flex items-center justify-between bg-neutral-50">
+                <h3 class="font-bold text-sm text-textDark flex items-center gap-2">
+                    <i class="fa-solid fa-file-import text-primary"></i> Import Sesi Obrolan
+                </h3>
+                <button onclick="toggleImportModal()" class="w-8 h-8 rounded-full hover:bg-neutral-100 text-textMuted hover:text-textDark flex items-center justify-center transition-all"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-textMuted">Unggah berkas ekspor chat Anda format `.json` atau tempelkan teks JSON mentah di bawah.</p>
+                <input type="file" id="import-file-input" accept=".json" class="hidden" onchange="handleFileImport(event)">
+                <button onclick="document.getElementById('import-file-input').click()" class="w-full h-12 rounded-full border border-dashed border-neutral-300 hover:border-neutral-400 bg-neutral-50 flex items-center justify-center gap-2 text-xs font-bold text-textDark transition-colors">
+                    <i class="fa-solid fa-cloud-arrow-up text-primary"></i> Pilih Berkas Sesi (.json)
+                </button>
+                <div class="relative flex py-2 items-center text-xs text-neutral-400">
+                    <div class="flex-grow border-t border-neutral-200"></div>
+                    <span class="flex-shrink mx-3 font-mono">ATAU</span>
+                    <div class="flex-grow border-t border-neutral-200"></div>
+                </div>
+                <textarea id="import-raw-json" rows="4" class="w-full p-4 rounded-[20px] text-xs bg-neutral-50 border border-neutral-200 font-mono text-textDark resize-none focus:outline-none focus:border-primary" placeholder="Tempelkan isi JSON Sesi Anda di sini..."></textarea>
+            </div>
+            <div class="p-6 border-t border-neutral-100 bg-neutral-50 flex items-center justify-end space-y-2 gap-2">
+                <button onclick="toggleImportModal()" class="h-11 px-5 rounded-full hover:bg-neutral-100 text-textMuted text-xs font-bold">Batal</button>
+                <button onclick="processRawImport()" class="h-11 px-6 rounded-full bg-surface hover:bg-neutral-800 text-primary text-xs font-bold">Proses Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CONFIGURATION ENGINE -->
+    <div id="settings-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden animate-fade-in">
+        <div class="bg-white w-full max-w-lg rounded-[40px] overflow-hidden shadow-2xl border border-neutral-200/50">
+            <div class="p-6 border-b border-neutral-100 flex items-center justify-between bg-neutral-50">
+                <div class="flex items-center space-x-2.5">
+                    <i class="fa-solid fa-sliders text-primary text-base"></i>
+                    <h3 class="font-extrabold text-sm text-textDark">Konfigurasi Hate AI Engine</h3>
+                </div>
+                <button onclick="toggleSettingsModal()" class="w-8 h-8 rounded-full hover:bg-neutral-100 text-textMuted hover:text-textDark flex items-center justify-center transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="p-6 space-y-4 max-h-[70vh] overflow-y-auto">
+                <div>
+                    <label class="block text-[10px] font-bold text-textMuted uppercase tracking-wider mb-2 font-mono">Bearer Authorization Token</label>
+                    <div class="relative">
+                        <input type="password" id="api-token" class="w-full h-11 px-4 pr-10 rounded-full text-xs bg-neutral-50 border border-neutral-200 text-textDark font-mono focus:outline-none focus:border-primary" placeholder="Masukkan token Bearer Anda...">
+                        <button onclick="toggleTokenVisibility()" class="absolute inset-y-0 right-0 pr-4.5 flex items-center text-textMuted hover:text-textDark">
+                            <i id="token-eye" class="fa-solid fa-eye-slash text-xs"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-[10px] font-bold text-textMuted uppercase tracking-wider mb-2 font-mono">Pilihan Model</label>
+                        <select id="api-model" class="w-full h-11 px-4 rounded-full text-xs bg-neutral-50 border border-neutral-200 text-textDark outline-none focus:border-primary">
+                            <option value="wormv5.1">wormv5.1</option>
+                            <option value="worm-thinking">wormv5.1 (Thinking Mode)</option>
+                            <option value="worm-classic">worm-classic</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-bold text-textMuted uppercase tracking-wider mb-2 font-mono">Bahasa Utama</label>
+                        <select id="api-language" class="w-full h-11 px-4 rounded-full text-xs bg-neutral-50 border border-neutral-200 text-textDark outline-none focus:border-primary">
+                            <option value="Indonesian">Bahasa Indonesia</option>
+                            <option value="English">English</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-2 border-t border-neutral-100 pt-4">
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" id="api-thinking" class="rounded bg-neutral-100 border-neutral-300 text-primary focus:ring-0 focus:ring-offset-0">
+                        <span class="text-xs text-textDark font-semibold">Aktifkan Berpikir (isThinkingEnabled)</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer">
+                        <input type="checkbox" id="api-search" class="rounded bg-neutral-100 border-neutral-300 text-primary focus:ring-0 focus:ring-offset-0">
+                        <span class="text-xs text-textDark font-semibold">Aktifkan Web Search (isWebSearchEnabled)</span>
+                    </label>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] font-bold text-textMuted uppercase tracking-wider mb-2 font-mono">Sistem Prompt Kustom</label>
+                    <textarea id="api-system-prompt" rows="3" class="w-full p-4 rounded-[20px] text-xs bg-neutral-50 border border-neutral-200 text-textDark placeholder-neutral-400 resize-none focus:outline-none focus:border-primary" placeholder="Masukkan instruksi sistem..."></textarea>
+                </div>
+            </div>
+            <div class="p-6 border-t border-neutral-100 bg-neutral-50 flex items-center justify-end gap-2">
+                <button onclick="toggleSettingsModal()" class="h-11 px-5 rounded-full hover:bg-neutral-100 text-textMuted text-xs font-bold transition-all">Tutup</button>
+                <button onclick="saveSettings()" class="h-11 px-6 rounded-full bg-surface hover:bg-neutral-800 text-primary text-xs font-bold transition-all">Simpan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CORE SCRIPTS ENGINE & LOGGER -->
+    <script>
+        // CONFIG & APPLICATION STATES
+        const FETCH_ENDPOINT = '/api/chat';
+
+        // SISTEM LOGGER PREMIUM REALTIME
+        const AppLogger = {
+            logs: [],
+            log(level, category, message, error = null) {
+                const logEntry = {
+                    time: new Date().toLocaleTimeString('id-ID'),
+                    level, // INFO, WARN, ERROR, NETWORK, STREAM
+                    category,
+                    message,
+                    error: error ? error.message || error : null
+                };
+                this.logs.push(logEntry);
+                console.log(`%c[${level}] [${category}] ${message}`, 'color: #A3E635; font-weight: bold;', error || '');
+                this.updateUI();
+            },
+            clear() {
+                this.logs = [];
+                this.updateUI();
+            },
+            updateUI() {
+                const el = document.getElementById('debug-log-console');
+                if (!el) return;
+                el.innerHTML = this.logs.map(l => {
+                    let color = 'text-slate-300';
+                    if (l.level === 'ERROR') color = 'text-rose-400 font-bold';
+                    if (l.level === 'WARN') color = 'text-amber-400 font-bold';
+                    if (l.level === 'NETWORK') color = 'text-sky-400';
+                    if (l.level === 'STREAM') color = 'text-emerald-400';
+                    return `
+                        <div class="py-0.5 border-b border-white/[0.02] leading-relaxed">
+                            <span class="text-neutral-500 font-mono">[${l.time}]</span> 
+                            <span class="${color} font-mono">[${l.level}]</span> 
+                            <span class="text-neutral-400 font-mono">[${l.category}]</span> 
+                            <span class="break-all text-neutral-200">${escapeHTML(l.message)}</span>
+                        </div>
+                    `;
+                }).join('');
+                el.scrollTop = el.scrollHeight;
+            }
+        };
+
+        // PENANGKAP ERROR GLOBAL
+        window.addEventListener('unhandledrejection', (event) => {
+            AppLogger.log('ERROR', 'unhandledrejection', `Unhandled Promise Rejection: ${event.reason?.message || event.reason}`, event.reason);
+            showToast('Kritikal Rejection Terdeteksi!', 'error');
+        });
+
+        window.addEventListener('error', (event) => {
+            AppLogger.log('ERROR', 'window_error', `Error: ${event.message} di ${event.filename}:${event.lineno}`, event.error);
+            showToast('Kesalahan Runtime JavaScript Terdeteksi!', 'error');
+        });
+
+        let state = {
+            sessions: [],
+            activeSessionId: null,
+            isGenerating: false,
+            searchQuery: '',
+            isUserAtBottom: true,
+            settings: {
+                apiToken: '',
+                model: 'wormv5.1',
+                systemPrompt: 'You are Hate AI, a highly cynical, extremely sarcastic, incredibly smart, and impatient artificial intelligence developer. Speak in a deep, highly sarcastic, and direct Indonesian-English mix tone. Highlight the stupidness of the code or query, but in the end give the extremely professional perfect code or architectural solution. Avoid sounding preachy.',
+                isThinkingEnabled: false,
+                isWebSearchEnabled: false,
+                language: 'Indonesian'
+            },
+            abortController: null
+        };
+
+        // SETUP MARKED & SYNTAX CODE HIGHLIGHT
+        const renderer = new marked.Renderer();
+        renderer.code = function(code, language) {
+            const validLanguage = hljs.getLanguage(language) ? language : 'plaintext';
+            const highlightedCode = hljs.highlight(code, { language: validLanguage }).value;
+            const uniqueId = `code-block-${Math.random().toString(36).substr(2, 9)}`;
+            
+            const lines = highlightedCode.split('\n');
+            const lineNumbersHTML = lines.map((_, idx) => `<span class="block text-neutral-600 text-right select-none pr-3 font-mono text-[11px]">${idx + 1}</span>`).join('');
+            const codeLinesHTML = lines.map(line => `<span class="block px-1 min-h-[1.25rem]">${line || ' '}</span>`).join('');
+
+            return `
+                <div class="my-4 rounded-[24px] border border-neutral-800/20 overflow-hidden bg-neutral-900 shadow-xl max-w-full">
+                    <div class="bg-neutral-950/80 px-5 py-2.5 flex items-center justify-between border-b border-white/5 text-[10px] text-neutral-400 font-mono">
+                        <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-primary"></span>${validLanguage.toUpperCase()}</span>
+                        <button onclick="copyCode('${uniqueId}')" class="flex items-center space-x-1.5 hover:text-white transition-colors" title="Salin Kode">
+                            <i class="fa-regular fa-copy"></i>
+                            <span>Salin</span>
+                        </button>
+                    </div>
+                    <div class="flex p-4 overflow-x-auto text-[11px] leading-relaxed font-mono select-text text-neutral-200">
+                        <div class="flex flex-col border-r border-white/5 pr-3 select-none">${lineNumbersHTML}</div>
+                        <pre class="flex-1 pl-3 overflow-x-auto"><code id="${uniqueId}" class="hljs language-${validLanguage} block">${codeLinesHTML}</code></pre>
+                    </div>
+                </div>
+            `;
+        };
+        marked.setOptions({ renderer: renderer });
+
+        // WRAPPER FETCH KHUSUS (TIMEOUT + RETRY)
+        async function safeFetch(url, options, timeoutMs = 25000, maxRetries = 1) {
+            let attempt = 0;
+            while (attempt <= maxRetries) {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
+                if (options.signal) {
+                    options.signal.addEventListener('abort', () => controller.abort());
+                }
+
+                try {
+                    AppLogger.log('NETWORK', 'safeFetch', `Memulai koneksi ke ${url} (Upaya ${attempt + 1}/${maxRetries + 1})`);
+                    const response = await fetch(url, {
+                        ...options,
+                        signal: controller.signal
+                    });
+                    
+                    clearTimeout(timeoutId);
+                    AppLogger.log('NETWORK', 'safeFetch', `Koneksi sukses. Status: ${response.status}`);
+                    return response;
+                } catch (err) {
+                    clearTimeout(timeoutId);
+                    AppLogger.log('WARN', 'safeFetch', `Koneksi gagal pada upaya ${attempt + 1}: ${err.message}`);
+                    
+                    if (attempt === maxRetries) {
+                        throw err; 
+                    }
+                    attempt++;
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                }
+            }
+        }
+
+        // APPLICATION INITS
+        window.addEventListener('DOMContentLoaded', () => {
+            loadFromLocalStorage();
+            initAppState();
+            setupShortcuts();
+            AppLogger.log('INFO', 'System', 'Hate AI Engine Siap Digunakan.');
+        });
+
+        function initAppState() {
+            document.getElementById('api-token').value = state.settings.apiToken;
+            document.getElementById('api-model').value = state.settings.model;
+            document.getElementById('api-language').value = state.settings.language;
+            document.getElementById('api-thinking').checked = state.settings.isThinkingEnabled;
+            document.getElementById('api-search').checked = state.settings.isWebSearchEnabled;
+            document.getElementById('api-system-prompt').value = state.settings.systemPrompt;
+
+            if (state.sessions.length === 0) {
+                createNewSession();
+            } else {
+                if (!state.activeSessionId) {
+                    state.activeSessionId = state.sessions[0].id;
+                }
+                renderSessions();
+                renderMessages();
+            }
+
+            updateHeaderModelBadge();
+            updateDebugUIPanel();
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem('hate_ai_premium_state', JSON.stringify({
+                sessions: state.sessions,
+                activeSessionId: state.activeSessionId,
+                settings: state.settings
+            }));
+            AppLogger.log('INFO', 'Storage', 'Sinkronisasi LocalStorage berhasil.');
+        }
+
+        function loadFromLocalStorage() {
+            const rawData = localStorage.getItem('hate_ai_premium_state');
+            if (rawData) {
+                try {
+                    const parsed = JSON.parse(rawData);
+                    state.sessions = parsed.sessions || [];
+                    state.activeSessionId = parsed.activeSessionId || null;
+                    if (parsed.settings) {
+                        state.settings = { ...state.settings, ...parsed.settings };
+                    }
+                } catch (e) {
+                    AppLogger.log('ERROR', 'Storage', 'Gagal memuat konfigurasi dari LocalStorage.', e);
+                }
+            }
+        }
+
+        function createNewSession() {
+            const newSession = {
+                id: 'session-' + Date.now(),
+                title: 'Ejekan Kode Baru',
+                messages: [],
+                model: state.settings.model,
+                createdAt: new Date().toISOString()
+            };
+
+            state.sessions.unshift(newSession);
+            state.activeSessionId = newSession.id;
+            saveToLocalStorage();
+            
+            renderSessions();
+            renderMessages();
+            
+            document.getElementById('chat-input').focus();
+            showToast('Sesi obrolan baru berhasil dibuat.', 'success');
+        }
+
+        function selectSession(id) {
+            state.activeSessionId = id;
+            saveToLocalStorage();
+            renderSessions();
+            renderMessages();
+            
+            const sidebar = document.getElementById('sidebar');
+            if (!sidebar.classList.contains('-translate-x-full')) {
+                toggleMobileSidebar();
+            }
+        }
+
+        function renderSessions() {
+            const container = document.getElementById('session-list');
+            container.innerHTML = '';
+
+            const filteredSessions = state.sessions.filter(s => 
+                s.title.toLowerCase().includes(state.searchQuery.toLowerCase())
+            );
+
+            if (filteredSessions.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-8 text-neutral-400 text-xs">
+                        <i class="fa-solid fa-ghost text-lg mb-2 block"></i>
+                        Tidak ada riwayat ditemukan.
+                    </div>
+                `;
+                return;
+            }
+
+            filteredSessions.forEach(session => {
+                const isActive = session.id === state.activeSessionId;
+                const activeClass = isActive 
+                    ? 'bg-white/10 text-white border-white/10' 
+                    : 'text-neutral-400 hover:bg-white/5 hover:text-white border-transparent';
+
+                const div = document.createElement('div');
+                div.className = `group relative p-3 rounded-[20px] border flex items-center justify-between transition-all duration-200 cursor-pointer ${activeClass}`;
+                div.onclick = () => selectSession(session.id);
+
+                div.innerHTML = `
+                    <div class="flex items-center space-x-3 overflow-hidden w-[75%]">
+                        <i class="fa-solid fa-message text-xs opacity-60"></i>
+                        <span id="title-text-${session.id}" class="text-xs font-semibold truncate">${escapeHTML(session.title)}</span>
+                        <input id="title-input-${session.id}" type="text" value="${escapeHTML(session.title)}" class="hidden bg-neutral-800 border border-white/20 rounded-full px-3 py-1 text-xs text-white focus:outline-none focus:ring-1 focus:ring-primary w-full" onblur="saveRename('${session.id}')" onkeydown="handleRenameKey(event, '${session.id}')">
+                    </div>
+                    <div class="flex items-center space-x-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button onclick="startRename(event, '${session.id}')" class="w-6 h-6 rounded-full hover:bg-white/10 flex items-center justify-center text-neutral-400 hover:text-white" title="Ganti Nama">
+                            <i class="fa-solid fa-pen text-[10px]"></i>
+                        </button>
+                        <button onclick="deleteSession(event, '${session.id}')" class="w-6 h-6 rounded-full hover:bg-rose-500/10 flex items-center justify-center text-neutral-400 hover:text-rose-400" title="Hapus Sesi">
+                            <i class="fa-solid fa-trash-can text-[10px]"></i>
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function renderMessages() {
+            const container = document.getElementById('messages-container');
+            const welcome = document.getElementById('welcome-screen');
+            container.innerHTML = '';
+
+            const currentSession = state.sessions.find(s => s.id === state.activeSessionId);
+            
+            if (!currentSession) {
+                document.getElementById('current-chat-title').innerText = "Hate AI Core";
+                welcome.classList.remove('hidden');
+                return;
+            }
+
+            document.getElementById('current-chat-title').innerText = currentSession.title;
+
+            if (currentSession.messages.length === 0) {
+                welcome.classList.remove('hidden');
+                return;
+            } else {
+                welcome.classList.add('hidden');
+            }
+
+            currentSession.messages.forEach(msg => {
+                const isUser = msg.role === 'user';
+                const outerDiv = document.createElement('div');
+                outerDiv.className = `flex items-start space-x-4 ${isUser ? 'justify-end' : 'justify-start'}`;
+
+                let avatarHTML = isUser ? `
+                    <div class="order-last ml-3 w-9 h-9 rounded-[14px] bg-neutral-100 flex items-center justify-center border border-neutral-200/50 text-textDark text-xs font-bold shrink-0">
+                        HA
+                    </div>
+                ` : `
+                    <div class="w-9 h-9 rounded-[14px] bg-primary flex items-center justify-center text-surface shrink-0 shadow-md animate-pulse">
+                        <i class="fa-solid fa-face-angry text-sm"></i>
+                    </div>
+                `;
+
+                const bubbleBg = isUser 
+                    ? 'bg-primary text-surface rounded-[32px] rounded-tr-[4px] border border-primary/20 shadow-sm animate-in zoom-in-95 duration-100' 
+                    : 'bg-surface text-white rounded-[32px] rounded-tl-[4px] border border-neutral-800 shadow-md';
+                
+                const timeStr = formatTimestamp(msg.timestamp);
+
+                // VALIDASI INPUT SEBELUM MARKED.PARSE() & SANITASI UNTUK USER/AI
+                let cleanContent = '';
+                if (isUser) {
+                    cleanContent = `<p class="whitespace-pre-wrap text-xs md:text-sm leading-relaxed font-semibold">${escapeHTML(msg.content)}</p>`;
+                } else {
+                    const rawContent = typeof msg.content === 'string' ? msg.content : String(msg.content || '');
+                    try {
+                        const htmlResult = marked.parse(rawContent);
+                        cleanContent = DOMPurify.sanitize(htmlResult);
+                    } catch (parseErr) {
+                        AppLogger.log('ERROR', 'Markdown', 'Gagal parsing markdown.', parseErr);
+                        cleanContent = `<p class="text-xs md:text-sm text-rose-400 font-mono">${escapeHTML(rawContent)}</p>`;
+                    }
+                }
+
+                const actionsHTML = isUser ? `
+                    <button onclick="startEditMessage('${msg.id}')" class="text-[10px] text-textMuted hover:text-textDark transition-colors" title="Edit Pesan">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit
+                    </button>
+                    <button onclick="deleteMessage('${msg.id}')" class="text-[10px] text-textMuted hover:text-rose-600 transition-colors" title="Hapus Pesan">
+                        <i class="fa-solid fa-trash-can"></i> Hapus
+                    </button>
+                ` : `
+                    <button onclick="copyMessageText('${msg.id}')" class="text-[10px] text-neutral-400 hover:text-white transition-colors" title="Salin Pesan">
+                        <i class="fa-solid fa-copy"></i> Salin
+                    </button>
+                    <button onclick="regenerateResponse('${msg.id}')" class="text-[10px] text-neutral-400 hover:text-white transition-colors" title="Regenerasi">
+                        <i class="fa-solid fa-rotate"></i> Regenerasi
+                    </button>
+                    <button onclick="continueResponse('${msg.id}')" class="text-[10px] text-neutral-400 hover:text-white transition-colors" title="Lanjutkan">
+                        <i class="fa-solid fa-chevron-right"></i> Lanjutkan
+                    </button>
+                `;
+
+                outerDiv.innerHTML = `
+                    ${!isUser ? avatarHTML : ''}
+                    <div class="max-w-[85%] sm:max-w-[80%] space-y-1.5">
+                        <div class="px-6 py-5 ${bubbleBg} relative group">
+                            <div class="prose ${isUser ? 'prose-neutral text-surface font-semibold' : 'prose-invert'} max-w-none text-xs sm:text-sm leading-relaxed" id="msg-content-${msg.id}">
+                                ${cleanContent}
+                            </div>
+                            
+                            <!-- Area Form Edit Inline -->
+                            <div id="edit-area-${msg.id}" class="hidden py-1 space-y-2">
+                                <textarea id="edit-input-${msg.id}" rows="3" class="w-full p-3 text-xs bg-neutral-900 border border-white/10 text-white rounded-[16px] resize-none focus:outline-none focus:border-primary">${escapeHTML(msg.content)}</textarea>
+                                <div class="flex items-center justify-end space-x-2">
+                                    <button onclick="cancelEditMessage('${msg.id}')" class="h-8 px-3 rounded-full hover:bg-white/5 text-[10px] text-neutral-400">Batal</button>
+                                    <button onclick="saveEditMessage('${msg.id}')" class="h-8 px-4 rounded-full bg-primary text-surface text-[10px] font-bold">Simpan</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3 px-1.5">
+                            <span class="text-[9px] text-textMuted font-mono font-medium">${timeStr}</span>
+                            <div class="flex items-center space-x-2.5">
+                                ${actionsHTML}
+                            </div>
+                        </div>
+                    </div>
+                    ${isUser ? avatarHTML : ''}
+                `;
+                container.appendChild(outerDiv);
+            });
+
+            if (state.isUserAtBottom) {
+                scrollToBottom();
+            }
+        }
+
+        function autoResizeTextarea(el) {
+            el.style.height = 'auto';
+            el.style.height = (el.scrollHeight) + 'px';
+            
+            const counter = document.getElementById('char-counter');
+            const count = el.value.length;
+            counter.innerText = `${count}/2000`;
+            if (count > 0) {
+                counter.classList.remove('hidden');
+            } else {
+                counter.classList.add('hidden');
+            }
+        }
+
+        function handleScrollDetection() {
+            const scroller = document.getElementById('chat-scroller');
+            const distanceFromBottom = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight;
+            state.isUserAtBottom = distanceFromBottom < 120;
+        }
+
+        function scrollToBottom() {
+            const scroller = document.getElementById('chat-scroller');
+            scroller.scrollTop = scroller.scrollHeight;
+        }
+
+        // IMPLEMENTASI AMAN: updateBubbleContent (VALIDASI SEBELUM MARKED.PARSE)
+        function updateBubbleContent(msgId, content) {
+            const container = document.getElementById(`msg-content-${msgId}`);
+            if (!container) return;
+            
+            // Jaminan input adalah tipe data string
+            if (typeof content !== 'string') {
+                AppLogger.log('WARN', 'Parser', `Menerima tipe data bukan string: ${typeof content}. Mengonversi ke String.`);
+                content = String(content || '');
+            }
+
+            try {
+                const parsedHTML = marked.parse(content);
+                container.innerHTML = DOMPurify.sanitize(parsedHTML);
+                
+                container.querySelectorAll('pre code').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+                
+                if (state.isUserAtBottom) {
+                    scrollToBottom();
+                }
+            } catch (err) {
+                AppLogger.log('ERROR', 'UI', `Gagal merender konten pesan pada ID: ${msgId}`, err);
+            }
+        }
+
+        // INPUT SEND CONTROLLER
+        async function handleSend() {
+            if (state.isGenerating) return;
+
+            const inputEl = document.getElementById('chat-input');
+            if (!inputEl) return;
+
+            const content = inputEl.value.trim();
+            if (!content) return;
+
+            let currentSession = state.sessions.find(s => s.id === state.activeSessionId);
+            if (!currentSession) {
+                createNewSession();
+                currentSession = state.sessions.find(s => s.id === state.activeSessionId);
+            }
+
+            if (content.length > 2000) {
+                showToast('Input melebihi batas maximum 2000 karakter.', 'error');
+                return;
+            }
+
+            if (currentSession.messages.length === 0) {
+                currentSession.title = content.substring(0, 30) + (content.length > 30 ? '...' : '');
+                renderSessions();
+            }
+
+            const userMsg = {
+                id: 'msg-' + Date.now(),
+                role: 'user',
+                content: content,
+                timestamp: new Date().toISOString()
+            };
+
+            currentSession.messages.push(userMsg);
+            
+            inputEl.value = '';
+            inputEl.style.height = 'auto';
+            document.getElementById('char-counter').classList.add('hidden');
+
+            state.isUserAtBottom = true; 
+            renderMessages();
+            saveToLocalStorage();
+
+            await executeAIStep(currentSession);
+        }
+
+        // PEMROSESAN ALIRAN DATA STREAM SSE CHAT AI SECARA SERVER-SIDE PROXY
+        async function executeAIStep(session) {
+            state.isGenerating = true;
+            toggleStopBtn(true);
+            toggleTypingIndicator(true);
+
+            const aiMsgId = 'msg-' + (Date.now() + 1);
+            const aiMsg = {
+                id: aiMsgId,
+                role: 'assistant',
+                content: '',
+                timestamp: new Date().toISOString()
+            };
+            session.messages.push(aiMsg);
+            renderMessages();
+
+            const aiContentEl = document.getElementById(`msg-content-${aiMsgId}`);
+            if (aiContentEl) aiContentEl.classList.add('streaming-cursor');
+
+            state.abortController = new AbortController();
+
+            // Setup Payload Request
+            const payload = {
+                messages: session.messages.filter(m => m.id !== aiMsgId).map(m => ({
+                    role: m.role,
+                    content: m.content
+                })),
+                model: state.settings.model,
+                isThinkingEnabled: state.settings.isThinkingEnabled,
+                isWebSearchEnabled: state.settings.isWebSearchEnabled,
+                systemPrompt: state.settings.systemPrompt,
+                language: state.settings.language
+            };
+
+            const headers = {
+                'Content-Type': 'application/json'
+            };
+
+            if (state.settings.apiToken && state.settings.apiToken.trim() !== '') {
+                headers['authorization'] = `Bearer ${state.settings.apiToken}`;
+            }
+
+            const startTime = performance.now();
+            updateDebugUIPanel(FETCH_ENDPOINT);
+
+            try {
+                // Seluruh request dialirkan lewat Vercel Serverless Function `/api/chat`
+                const response = await safeFetch(FETCH_ENDPOINT, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(payload),
+                    signal: state.abortController.signal
+                }, 25000, 1);
+
+                const duration = Math.round(performance.now() - startTime);
+                document.getElementById('debug-duration').innerText = `${duration} ms`;
+                document.getElementById('debug-last-status').innerText = response.status;
+
+                if (!response.ok) {
+                    const parsedErr = await response.json().catch(() => ({}));
+                    let errText = parsedErr.error || `HTTP Upstream Error ${response.status}`;
+                    throw new Error(errText);
+                }
+
+                toggleTypingIndicator(false);
+
+                // READ STREAM SECARA REALTIME
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder("utf-8");
+                let buffer = '';
+
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+
+                    buffer += decoder.decode(value, { stream: true });
+                    let lines = buffer.split('\n');
+                    buffer = lines.pop(); 
+
+                    for (const line of lines) {
+                        const trimmedLine = line.trim();
+                        if (!trimmedLine) continue;
+
+                        if (trimmedLine.startsWith('data:')) {
+                            const rawData = trimmedLine.slice(5).trim();
+                            if (rawData === '[DONE]') {
+                                AppLogger.log('STREAM', 'SSE', 'Streaming respons dari server selesai.');
+                                continue;
+                            }
+
+                            try {
+                                const parsed = JSON.parse(rawData);
+                                let token = '';
+                                if (parsed.type === 'content' && parsed.payload !== undefined) {
+                                    token = parsed.payload;
+                                } else if (parsed.choices?.[0]?.delta?.content !== undefined) {
+                                    token = parsed.choices[0].delta.content;
+                                } else if (parsed.content !== undefined) {
+                                    token = parsed.content;
+                                }
+
+                                // TANGANI RESPONSE YANG BUKAN STRING (KONVERSI DINAMIS)
+                                if (token !== undefined && token !== null) {
+                                    if (typeof token !== 'string') {
+                                        token = String(token);
+                                    }
+                                    aiMsg.content += token;
+                                    updateBubbleContent(aiMsgId, aiMsg.content);
+                                }
+                            } catch (parseError) {
+                                // Fallback jika data terkirim berupa teks biasa non-JSON
+                                if (rawData.length > 0 && !rawData.startsWith('{')) {
+                                    aiMsg.content += rawData;
+                                    updateBubbleContent(aiMsgId, aiMsg.content);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                saveToLocalStorage();
+
+            } catch (err) {
+                const duration = Math.round(performance.now() - startTime);
+                document.getElementById('debug-duration').innerText = `${duration} ms`;
+                document.getElementById('debug-last-status').innerText = "FAILED";
+                AppLogger.log('ERROR', 'API', `Kegagalan Jaringan: ${err.message}`, err);
+                
+                if (err.name === 'AbortError') {
+                    showToast('Generasi dihentikan oleh pengguna.', 'warning');
+                } else {
+                    // HAPUS SARKASTIK FALLBACK - MENAMPILKAN ERROR ASLI SEBENARNYA
+                    aiMsg.content = `### 🚨 Gagal Menghubungi Server Proxy\n\nTerjadi kesalahan koneksi saat memproses streaming backend. Tidak ada respons simulator cadangan.\n\n**Analisis Kesalahan Teknis:**\n\`\`\`bash\n${err.message}\n\`\`\`\n\nPastikan Anda telah mendeploy serverless route \`/api/chat\` di Vercel dengan benar.`;
+                    updateBubbleContent(aiMsgId, aiMsg.content);
+                }
+            } finally {
+                const finalEl = document.getElementById(`msg-content-${aiMsgId}`);
+                if (finalEl) finalEl.classList.remove('streaming-cursor');
+
+                state.isGenerating = false;
+                toggleStopBtn(false);
+                toggleTypingIndicator(false);
+                updateDebugUIPanel();
+            }
+        }
+
+        // SISTEM EVENT HANDLERS
+        function stopGeneration() {
+            if (state.abortController) {
+                state.abortController.abort();
+            }
+            state.isGenerating = false;
+            toggleStopBtn(false);
+            toggleTypingIndicator(false);
+            AppLogger.log('INFO', 'API', 'Streaming AI dihentikan paksa.');
+        }
+
+        async function regenerateResponse(messageId) {
+            if (state.isGenerating) return;
+
+            const currentSession = state.sessions.find(s => s.id === state.activeSessionId);
+            if (!currentSession) return;
+
+            const targetIdx = currentSession.messages.findIndex(m => m.id === messageId);
+            if (targetIdx === -1) return;
+
+            currentSession.messages = currentSession.messages.slice(0, targetIdx);
+            
+            state.isUserAtBottom = true;
+            renderMessages();
+            saveToLocalStorage();
+
+            await executeAIStep(currentSession);
+        }
+
+        async function continueResponse(messageId) {
+            if (state.isGenerating) return;
+
+            const currentSession = state.sessions.find(s => s.id === state.activeSessionId);
+            if (!currentSession) return;
+
+            const targetIdx = currentSession.messages.findIndex(m => m.id === messageId);
+            if (targetIdx === -1) return;
+
+            const continueInstruction = {
+                id: 'msg-' + Date.now(),
+                role: 'user',
+                content: 'Lanjutkan tulisan Anda sebelumnya secara presisi dari bagian kata terakhir yang terputus tanpa menulis ulang dari awal.',
+                timestamp: new Date().toISOString()
+            };
+
+            currentSession.messages.push(continueInstruction);
+            
+            state.isUserAtBottom = true;
+            renderMessages();
+            saveToLocalStorage();
+
+            await executeAIStep(currentSession);
+        }
+
+        function startEditMessage(messageId) {
+            document.getElementById(`msg-content-${messageId}`).classList.add('hidden');
+            document.getElementById(`edit-area-${messageId}`).classList.remove('hidden');
+        }
+
+        function cancelEditMessage(messageId) {
+            document.getElementById(`msg-content-${messageId}`).classList.remove('hidden');
+            document.getElementById(`edit-area-${messageId}`).classList.add('hidden');
+        }
+
+        async function saveEditMessage(messageId) {
+            const currentSession = state.sessions.find(s => s.id === state.activeSessionId);
+            if (!currentSession) return;
+
+            const targetIdx = currentSession.messages.findIndex(m => m.id === messageId);
+            if (targetIdx === -1) return;
+
+            const editInput = document.getElementById(`edit-input-${messageId}`);
+            const newContent = editInput.value.trim();
+
+            if (!newContent) return;
+
+            currentSession.messages[targetIdx].content = newContent;
+            currentSession.messages[targetIdx].timestamp = new Date().toISOString();
+            currentSession.messages = currentSession.messages.slice(0, targetIdx + 1);
+
+            state.isUserAtBottom = true;
+            renderMessages();
+            saveToLocalStorage();
+
+            await executeAIStep(currentSession);
+        }
+
+        function deleteMessage(messageId) {
+            const currentSession = state.sessions.find(s => s.id === state.activeSessionId);
+            if (!currentSession) return;
+
+            const confirmed = confirm("Hapus pesan ini secara permanen dari riwayat?");
+            if (!confirmed) return;
+
+            currentSession.messages = currentSession.messages.filter(m => m.id !== messageId);
+            saveToLocalStorage();
+            renderMessages();
+            showToast('Pesan berhasil dihapus.', 'success');
+        }
+
+        function startRename(event, sessionId) {
+            event.stopPropagation();
+            document.getElementById(`title-text-${sessionId}`).classList.add('hidden');
+            const input = document.getElementById(`title-input-${sessionId}`);
+            input.classList.remove('hidden');
+            input.focus();
+        }
+
+        function saveRename(sessionId) {
+            const input = document.getElementById(`title-input-${sessionId}`);
+            const newTitle = input.value.trim();
+            const session = state.sessions.find(s => s.id === sessionId);
+
+            if (newTitle && session) {
+                session.title = newTitle;
+                saveToLocalStorage();
+                showToast('Nama percakapan diperbarui.', 'success');
+            }
+
+            renderSessions();
+            if (state.activeSessionId === sessionId) {
+                document.getElementById('current-chat-title').innerText = session ? session.title : "Hate AI Client";
+            }
+        }
+
+        function handleRenameKey(event, sessionId) {
+            if (event.key === 'Enter') {
+                saveRename(sessionId);
+            }
+        }
+
+        function deleteSession(event, sessionId) {
+            event.stopPropagation();
+            const confirmed = confirm("Hapus sesi obrolan ini secara permanen?");
+            if (!confirmed) return;
+
+            state.sessions = state.sessions.filter(s => s.id !== sessionId);
+            if (state.activeSessionId === sessionId) {
+                state.activeSessionId = state.sessions.length > 0 ? state.sessions[0].id : null;
+            }
+
+            saveToLocalStorage();
+            renderSessions();
+            renderMessages();
+            showToast('Sesi obrolan berhasil dihapus.', 'warning');
+        }
+
+        function clearCurrentChat() {
+            const currentSession = state.sessions.find(s => s.id === state.activeSessionId);
+            if (!currentSession) return;
+
+            const confirmed = confirm("Bersihkan seluruh pesan di sesi obrolan aktif ini?");
+            if (confirmed) {
+                currentSession.messages = [];
+                saveToLocalStorage();
+                renderMessages();
+                showToast('Percakapan dibersihkan.', 'success');
+            }
+        }
+
+        function clearAllHistory() {
+            const confirmed = confirm("Hapus total seluruh riwayat obrolan Anda?");
+            if (confirmed) {
+                state.sessions = [];
+                state.activeSessionId = null;
+                saveToLocalStorage();
+                createNewSession();
+                showToast('Seluruh riwayat dibersihkan!', 'warning');
+            }
+        }
+
+        function toggleImportModal() {
+            const modal = document.getElementById('import-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function triggerImport() {
+            toggleImportModal();
+        }
+
+        function handleFileImport(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsed = JSON.parse(e.target.result);
+                    processImportedSession(parsed);
+                } catch (err) {
+                    showToast('Format berkas JSON tidak valid.', 'error');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function processRawImport() {
+            const textarea = document.getElementById('import-raw-json');
+            const rawVal = textarea.value.trim();
+            if (!rawVal) return;
+
+            try {
+                const parsed = JSON.parse(rawVal);
+                processImportedSession(parsed);
+                textarea.value = '';
+            } catch (err) {
+                showToast('Gagal parsing JSON. Pastikan format benar.', 'error');
+            }
+        }
+
+        function processImportedSession(sessionData) {
+            if (!sessionData.id || !sessionData.title || !Array.isArray(sessionData.messages)) {
+                showToast('Skema Sesi Chat tidak valid.', 'error');
+                return;
+            }
+
+            sessionData.id = 'session-' + Date.now();
+            sessionData.createdAt = new Date().toISOString();
+
+            state.sessions.unshift(sessionData);
+            state.activeSessionId = sessionData.id;
+            
+            saveToLocalStorage();
+            renderSessions();
+            renderMessages();
+            
+            toggleImportModal();
+            showToast('Sesi obrolan berhasil diimport!', 'success');
+        }
+
+        function toggleSettingsModal() {
+            const modal = document.getElementById('settings-modal');
+            modal.classList.toggle('hidden');
+        }
+
+        function saveSettings() {
+            state.settings.apiToken = document.getElementById('api-token').value;
+            state.settings.model = document.getElementById('api-model').value;
+            state.settings.language = document.getElementById('api-language').value;
+            state.settings.isThinkingEnabled = document.getElementById('api-thinking').checked;
+            state.settings.isWebSearchEnabled = document.getElementById('api-search').checked;
+            state.settings.systemPrompt = document.getElementById('api-system-prompt').value;
+
+            saveToLocalStorage();
+            updateHeaderModelBadge();
+            updateDebugUIPanel();
+            toggleSettingsModal();
+            showToast('Konfigurasi engine berhasil disimpan.', 'success');
+        }
+
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('mobile-overlay');
+            sidebar.classList.toggle('-translate-x-full');
+            overlay.classList.toggle('hidden');
+        }
+
+        // PANEL DEBUG INTERFACES
+        function toggleDebugPanel() {
+            const panel = document.getElementById('debug-panel');
+            panel.classList.toggle('hidden');
+            AppLogger.updateUI();
+        }
+
+        function clearDebugLogs() {
+            AppLogger.clear();
+        }
+
+        function updateDebugUIPanel(customUrl = null) {
+            document.getElementById('debug-target-url').innerText = customUrl || FETCH_ENDPOINT;
+        }
+
+        function handleSearch(val) {
+            state.searchQuery = val;
+            renderSessions();
+        }
+
+        function updateHeaderModelBadge() {
+            document.getElementById('active-model-badge').innerText = state.settings.model;
+        }
+
+        function toggleStopBtn(show) {
+            const container = document.getElementById('stop-generation-container');
+            if (show) {
+                container.classList.remove('hidden');
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function toggleTypingIndicator(show) {
+            const indicator = document.getElementById('typing-indicator');
+            if (show) {
+                indicator.classList.remove('hidden');
+                if (state.isUserAtBottom) scrollToBottom();
+            } else {
+                indicator.classList.add('hidden');
+            }
+        }
+
+        function toggleTokenVisibility() {
+            const input = document.getElementById('api-token');
+            const icon = document.getElementById('token-eye');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fa-solid fa-eye';
+            } else {
+                input.type = 'password';
+                icon.className = 'fa-solid fa-eye-slash';
+            }
+        }
+
+        function useQuickPrompt(promptText) {
+            const chatInput = document.getElementById('chat-input');
+            chatInput.value = promptText;
+            autoResizeTextarea(chatInput);
+            handleSend();
+        }
+
+        function copyCode(elementId) {
+            const codeText = Array.from(document.getElementById(elementId).querySelectorAll('span.block.px-1'))
+                .map(el => el.innerText)
+                .join('\n');
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = codeText;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Kode berhasil disalin!', 'success');
+            } catch (err) {
+                showToast('Gagal menyalin kode.', 'error');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function copyMessageText(msgId) {
+            const msgEl = document.getElementById(`msg-content-${msgId}`);
+            if (!msgEl) return;
+            const text = msgEl.innerText;
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                showToast('Pesan berhasil disalin!', 'success');
+            } catch (err) {
+                showToast('Gagal menyalin pesan.', 'error');
+            }
+            document.body.removeChild(textarea);
+        }
+
+        function triggerExport(format) {
+            const currentSession = state.sessions.find(s => s.id === state.activeSessionId);
+            if (!currentSession || currentSession.messages.length === 0) {
+                showToast('Tidak ada data chat untuk diekspor.', 'error');
+                return;
+            }
+
+            let fileContent = '';
+            let mimeType = '';
+            let fileExtension = '';
+
+            if (format === 'json') {
+                fileContent = JSON.stringify(currentSession, null, 2);
+                mimeType = 'application/json';
+                fileExtension = 'json';
+            } else if (format === 'txt') {
+                fileContent = `=== HATE AI CHAT EXPORT ===\n`;
+                fileContent += `Judul Sesi: ${currentSession.title}\n\n`;
+                currentSession.messages.forEach(msg => {
+                    fileContent += `[${msg.timestamp}] ${msg.role.toUpperCase()}:\n${msg.content}\n\n`;
+                });
+                mimeType = 'text/plain';
+                fileExtension = 'txt';
+            }
+
+            const blob = new Blob([fileContent], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `HateAI-${currentSession.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${fileExtension}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast(`Berhasil mengekspor format .${fileExtension}`, 'success');
+        }
+
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let bgClass = 'bg-surface border-white/10 text-white';
+            let iconHTML = '<i class="fa-solid fa-circle-info text-blue-400"></i>';
+
+            if (type === 'success') {
+                bgClass = 'bg-surface border-primary/20 text-primary';
+                iconHTML = '<i class="fa-solid fa-circle-check text-primary"></i>';
+            } else if (type === 'warning') {
+                bgClass = 'bg-surface border-amber-500/20 text-amber-400';
+                iconHTML = '<i class="fa-solid fa-circle-exclamation text-amber-400"></i>';
+            } else if (type === 'error') {
+                bgClass = 'bg-surface border-rose-500/20 text-rose-400';
+                iconHTML = '<i class="fa-solid fa-circle-xmark text-rose-400"></i>';
+            }
+
+            toast.className = `p-4 rounded-[20px] border ${bgClass} shadow-2xl flex items-center space-x-3 text-xs font-semibold max-w-sm pointer-events-auto transition-all duration-300 transform translate-y-2 opacity-0`;
+            toast.innerHTML = `
+                ${iconHTML}
+                <span>${escapeHTML(message)}</span>
+            `;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-[-10px]');
+                setTimeout(() => {
+                    toast.remove();
+                }, 300);
+            }, 3000);
+        }
+
+        function escapeHTML(str) {
+            return str.replace(/[&<>'"]/g, 
+                tag => ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    "'": '&#39;',
+                    '"': '&quot;'
+                }[tag] || tag)
+            );
+        }
+
+        function formatTimestamp(isoString) {
+            try {
+                const date = new Date(isoString);
+                return date.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+            } catch (e) {
+                return '';
+            }
+        }
+
+        function setupShortcuts() {
+            const chatInput = document.getElementById('chat-input');
+            if (chatInput) {
+                chatInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        handleSend();
+                    }
+                });
+            }
+
+            window.addEventListener('keydown', (e) => {
+                if (e.ctrlKey && e.shiftKey && e.key.toUpperCase() === 'N') {
+                    e.preventDefault();
+                    createNewSession();
+                }
+                if (e.key === 'Escape') {
+                    const modals = ['import-modal', 'settings-modal'];
+                    modals.forEach(id => {
+                        const modal = document.getElementById(id);
+                        if (modal && !modal.classList.contains('hidden')) {
+                            modal.classList.add('hidden');
+                        }
+                    });
+                }
+            });
+        }
+
+        // BINDING GLOBAL SCOPE UNTUK ELEMENT ONCLICK INLINE
+        window.handleSend = handleSend;
+        window.executeAIStep = executeAIStep;
+        window.stopGeneration = stopGeneration;
+        window.regenerateResponse = regenerateResponse;
+        window.continueResponse = continueResponse;
+        window.startEditMessage = startEditMessage;
+        window.cancelEditMessage = cancelEditMessage;
+        window.saveEditMessage = saveEditMessage;
+        window.deleteMessage = deleteMessage;
+        window.startRename = startRename;
+        window.saveRename = saveRename;
+        window.handleRenameKey = handleRenameKey;
+        window.deleteSession = deleteSession;
+        window.clearCurrentChat = clearCurrentChat;
+        window.clearAllHistory = clearAllHistory;
+        window.toggleImportModal = toggleImportModal;
+        window.triggerImport = triggerImport;
+        window.handleFileImport = handleFileImport;
+        window.processRawImport = processRawImport;
+        window.toggleSettingsModal = toggleSettingsModal;
+        window.saveSettings = saveSettings;
+        window.toggleMobileSidebar = toggleMobileSidebar;
+        window.toggleDebugPanel = toggleDebugPanel;
+        window.clearDebugLogs = clearDebugLogs;
+        window.handleSearch = handleSearch;
+        window.updateHeaderModelBadge = updateHeaderModelBadge;
+        window.toggleStopBtn = toggleStopBtn;
+        window.toggleTypingIndicator = toggleTypingIndicator;
+        window.toggleTokenVisibility = toggleTokenVisibility;
+        window.useQuickPrompt = useQuickPrompt;
+        window.copyCode = copyCode;
+        window.copyMessageText = copyMessageText;
+        window.triggerExport = triggerExport;
+        window.showToast = showToast;
+        window.autoResizeTextarea = autoResizeTextarea;
+        window.handleScrollDetection = handleScrollDetection;
+        window.createNewSession = createNewSession;
+        window.selectSession = selectSession;
+
+        if (typeof window.handleSend !== "function") {
+            console.error("[CRITICAL] handleSend missing in global scope.");
+        } else {
+            AppLogger.log('INFO', 'System', 'Binding lingkup global fungsional.');
+        }
+    </script>
+</body>
+</html>
